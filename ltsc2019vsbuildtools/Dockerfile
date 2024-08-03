@@ -7,11 +7,16 @@ FROM mcr.microsoft.com/windows/servercore:ltsc2019
 SHELL ["cmd", "/S", "/C"]
 
 # Download and install Visual Studio Build Tools
-RUN `
-    curl -SL --output vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe `
+RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe `
     && (start /w vs_buildtools.exe --quiet --wait --norestart --nocache `
         --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\BuildTools" `
         --add Microsoft.VisualStudio.Workload.AzureBuildTools `
+        --add Microsoft.VisualStudio.Workload.VCTools `
+        --add Microsoft.Net.ComponentGroup.4.8.DeveloperTools `
+        --add Microsoft.VisualStudio.Component.DockerTools `
+        --add Microsoft.Component.MSBuild `
+        --includeRecommended `
+        --includeOptional `
         --remove Microsoft.VisualStudio.Component.Windows10SDK.10240 `
         --remove Microsoft.VisualStudio.Component.Windows10SDK.10586 `
         --remove Microsoft.VisualStudio.Component.Windows10SDK.14393 `

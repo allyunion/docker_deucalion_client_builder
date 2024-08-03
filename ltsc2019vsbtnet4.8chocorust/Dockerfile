@@ -9,18 +9,28 @@ SHELL ["cmd", "/S", "/C"]
 RUN powershell -Command "Invoke-WebRequest -Uri https://win.rustup.rs/x86_64 -OutFile C:\ProgramData\chocolatey\bin\rustup-init.exe"
 
 # Install Rust via rustup
-RUN C:\ProgramData\chocolatey\bin\rustup-init.exe -y
+RUN C:\ProgramData\chocolatey\bin\rustup-init.exe -y --default-toolchain nightly
 
-# Install nightly Rust toolchain and set it as the default
-RUN C:\Users\ContainerAdministrator\.cargo\bin\rustup toolchain install nightly && `
-    C:\Users\ContainerAdministrator\.cargo\bin\rustup default nightly
+# Set the PATH for GCC
+RUN setx PATH "%PATH%;%USERPROFILE%\.cargo\bin;C:\ProgramData\chocolatey\bin;C:\ProgramData\chocolatey\lib;C:\ProgramData\mingw64\mingw64\bin;C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
 
-# Set the PATH for Rust tools
-RUN setx PATH "%PATH%;C:\Users\ContainerAdministrator\.cargo\bin"
+RUN set PATH="%PATH%;%USERPROFILE%\.cargo\bin;C:\ProgramData\chocolatey\bin;C:\ProgramData\chocolatey\lib;C:\ProgramData\mingw64\mingw64\bin;C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
 
-# Refresh the environment variables
-RUN refreshenv
+RUN powershell -NoProfile -ExecutionPolicy Bypass -Command \
+    "Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; \
+    refreshenv"
 
 # Install git via Chocolatey
 RUN choco install -y git
 
+# Create a dummy project to pre-download dependencies
+WORKDIR /dummy_project
+COPY Cargo.toml .
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+
+# Cleanup dummy project
+RUN rmdir /s /q src && del Cargo.toml
+
+# Return to root directory
+WORKDIR /
