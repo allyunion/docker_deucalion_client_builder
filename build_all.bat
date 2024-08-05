@@ -1,10 +1,8 @@
 @echo off
 
 :: Build all images in sequential order
-docker build -t ltsc2019vsbuildtools .\ltsc2019vsbuildtools
-docker build -t ltsc2019vsbtnet4.8 .\ltsc2019vsbtnet4.8
-docker build -t ltsc2019vsbtnet4.8chocolatey  .\ltsc2019vsbtnet4.8chocolatey
-docker build -t ltsc2019vsbtnet4.8chocorust .\ltsc2019vsbtnet4.8chocorust
-docker build -t ltsc2019vsbtnet4.8chocorustdep .\ltsc2019vsbtnet4.8chocorustdep
-docker build -t ltsc2019vsbtnet4.8builder .\ltsc2019vsbtnet4.8builder
-docker build -t deucalion_client .\deucalion
+docker build -t ltsc2016buildtools .\ltsc2016buildtools || exit /b 1
+docker build -t ltsc2016vschocorust .\ltsc2016vschocorust || exit /b 1
+docker build -t ltsc2016vschocorustdep -m 8GB .\ltsc2016vschocorustdep || exit /b 1p
+docker build -t ltsc2016vsbuilder .\ltsc2016vsbuilder || exit /b 1
+docker build -t deucalion_client -m 8GB .\deucalion || exit /b 1
